@@ -1,0 +1,159 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/2.0/configuration-reference
+version: 2.1
+
+commands:
+  print_pipeline_id:
+    parameters:
+      id:
+        type: string
+    steps:
+      - run: echo << parameters.id >>
+
+# Define a job to be invoked later in a workflow.
+# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
+jobs:
+  build:
+    docker:
+        - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run: npm install
+      - run: npm run lint
+
+  test:
+    docker:
+        - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run: npm run test
+
+  analyze:
+    docker:
+        - image: cimg/base:2020.01
+    steps:
+      - checkout
+      - run: npm audit
+
+  # save_hello_world_output:
+  #   docker:
+  #     - image: cimg/base:2020.01
+  #   steps:
+  #     - checkout
+  #     - run:
+  #         name: "Save Hello world in a file"
+  #         command: |
+  #           echo "I am Saved in a txt file" > ~/output.txt
+  #     - persist_to_workspace:
+  #         root: ~/
+  #         paths:
+  #           - output.txt
+          
+  # print_output_file:
+  #   docker:
+  #     - image: cimg/base:2020.01
+  #   steps:
+  #     - checkout
+  #     - attach_workspace:
+  #         at: ~/
+  #     - run: cat ~/output.txt
+
+  # print-pipeline-id:
+  #   docker:
+  #       - image: circleci/node:13.8.0
+  #   steps:
+  #     # - print_pipeline_id:
+  #     #     id: << pipeline.id >>
+  #     - run: exit 1
+  #     - run:
+  #         name: "On fail Print"
+  #         command: echo "A job has failed"
+  #         when: on_fail
+      
+  
+      
+    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
+    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+    # docker:
+    #   - image: cimg/base:stable
+    # Add steps to the job
+    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+    # steps:
+    #   - checkout
+    #   - run: echo "hello file saved" > ~/output.txt
+      # - run:
+      #     name: "Save Hello World Output"
+      #     command: echo "text to output here" > output.txt
+
+      # - persist_to_workspace:
+      #     root: ~/
+      #     paths:
+      #       - output.txt
+
+  # print_output_file:
+  #   docker:
+  #     - image: cimg/base:stable
+    # Add steps to the job
+    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+    # steps:
+    #   - checkout
+    #   - attach_workspace:
+    #       at: ~/
+    #   - run: cat ~/output.txt
+  
+  # print-hello:
+    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
+    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+    # docker:
+    #   - image: cimg/base:stable
+    # Add steps to the job
+    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+    # steps:
+    #   - checkout
+    #   - run:
+    #       name: "print environment name"
+    #       command: echo ${Name}
+
+  # when-fail:
+    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
+    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+    # docker:
+    #   - image: cimg/base:stable
+    # Add steps to the job
+    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+    # steps:
+    #   - run: exit 0   
+      # set exit code to 1 for it to fail
+  #     - run:
+  #         name: "Bash command to fail the job"
+  #         command: echo "ERROR!!"
+  #         when: on_fail
+
+  
+          
+
+# Invoke jobs via workflows
+# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+workflows:
+  say-hello-workflow:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+      - analyze:
+          requires:
+            - test
+      # - print-pipeline-id
+      # - save_hello_world_output
+      # - print-hello:
+      #     requires:
+      #       - save_hello_world_output
+      # - print_output_file:
+      #       requires:
+      #       - save_hello_world_output
+      # - print-pipeline-id
+      # - when-fail
+
+
+      
